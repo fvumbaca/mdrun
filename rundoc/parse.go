@@ -1,6 +1,7 @@
 package rundoc
 
 import (
+	"fmt"
 	"io"
 
 	blackfriday "github.com/russross/blackfriday/v2"
@@ -21,10 +22,27 @@ func Parse(input []byte) (*Rundoc, error) {
 }
 
 func (d *Rundoc) WriteHTML(w io.Writer) {
-	r := blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{})
+	r := customRenderer{
+		blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{}),
+	}
 	r.RenderHeader(w, d.docRoot)
 	d.docRoot.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 		return r.RenderNode(w, node, entering)
 	})
 	r.RenderFooter(w, d.docRoot)
+}
+
+type customRenderer struct {
+	*blackfriday.HTMLRenderer
+}
+
+func (r *customRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+	switch node.Type {
+	case blackfriday.CodeBlock:
+		r := r.HTMLRenderer.RenderNode(w, node, entering)
+		fmt.Fprintf(w, `<button onclick="alert('testing123')">Run</button>`)
+		return r
+	default:
+		return r.HTMLRenderer.RenderNode(w, node, entering)
+	}
 }

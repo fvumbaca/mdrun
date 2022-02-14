@@ -4,3 +4,4 @@
 
 <pre><code class="language-sh">echo &quot;Hello world&quot;
 </code></pre>
+<button onclick="alert('testing123')">Run</button>
