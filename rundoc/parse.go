@@ -1,6 +1,7 @@
 package rundoc
 
 import (
+	_ "embed"
 	"fmt"
 	"io"
 
@@ -23,7 +24,8 @@ func Parse(input []byte) (*Rundoc, error) {
 
 func (d *Rundoc) WriteHTML(w io.Writer) {
 	r := customRenderer{
-		blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
+		jsAppURL: "/_assets/js/app.js",
+		HTMLRenderer: blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
 			Flags: blackfriday.CompletePage,
 		}),
 	}
@@ -35,11 +37,13 @@ func (d *Rundoc) WriteHTML(w io.Writer) {
 }
 
 type customRenderer struct {
+	jsAppURL string
 	*blackfriday.HTMLRenderer
 }
 
 func (r *customRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
 	r.HTMLRenderer.RenderHeader(w, ast)
+	fmt.Fprintf(w, "<script src='%s'></script>\n", r.jsAppURL)
 }
 
 func (r *customRenderer) RenderNode(w io.Writer, node *blackfriday.Node,
