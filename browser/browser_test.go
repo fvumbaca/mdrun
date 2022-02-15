@@ -9,9 +9,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestHandler(t *testing.T) {
-}
-
 func TestDirList_NotExist(t *testing.T) {
 	filenames, err := listMarkdownAndDirs(os.DirFS("/doesnotexist"))
 	if err == nil {
@@ -27,6 +24,7 @@ func TestDirList(t *testing.T) {
 	newFile(t, dir, "example.md", "")
 	newDir(t, dir, "subdir")
 	newFile(t, dir, "ignoreme.txt", "")
+	newFile(t, dir, "subdir/subfile.md", "")
 
 	filenames, err := listMarkdownAndDirs(os.DirFS(dir))
 	noErr(t, err)
@@ -57,7 +55,7 @@ func newFile(t *testing.T, dir, name string, body string) {
 }
 
 func newDir(t *testing.T, dir, name string) {
-	err := os.MkdirAll(filepath.Join(dir, name), 0655)
+	err := os.MkdirAll(filepath.Join(dir, name), 0775)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()

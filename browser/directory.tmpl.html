@@ -1,0 +1,13 @@
+{{ $page := .}}
+<html>
+  <head>
+    <title>mdrun</title>
+  </head>
+  <body>
+    <ul>
+      {{ range .Items }}
+      <li><a href="/{{ $page.Path }}/{{ . }}">{{ . }}</a></li>
+      {{ end }}
+    </ul>
+  </body>
+</html>

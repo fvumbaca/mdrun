@@ -37,12 +37,19 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fvumbaca/mdrun/browser"
 	_ "github.com/fvumbaca/mdrun/rundoc"
 	"github.com/gorilla/websocket"
 	"github.com/russross/blackfriday/v2"
 )
 
 func main() {
+	fmt.Println("Startung up server on :3000")
+	http.Handle("/", &browser.Handler{RootFS: os.DirFS("./")})
+	http.ListenAndServe(":3000", nil)
+}
+
+func xmain() {
 	// http.HandleFunc("/", listFilesHandler)
 	cwd, err := os.Getwd()
 	if err != nil {

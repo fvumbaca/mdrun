@@ -5,9 +5,6 @@ import (
 	"path/filepath"
 )
 
-type Handler struct {
-}
-
 var filterForExtensions = []string{".md"}
 
 func listMarkdownAndDirs(root fs.FS) ([]string, error) {
