@@ -1,15 +1,18 @@
 package browser
 
 import (
-	"io/ioutil"
+	"io/fs"
 	"path/filepath"
 )
 
+type Handler struct {
+}
+
 var filterForExtensions = []string{".md"}
 
-func listMarkdownAndDirs(root string) ([]string, error) {
+func listMarkdownAndDirs(root fs.FS) ([]string, error) {
 	var filenames []string
-	infos, err := ioutil.ReadDir(root)
+	infos, err := fs.ReadDir(root, ".")
 	if err != nil {
 		return filenames, err
 	}

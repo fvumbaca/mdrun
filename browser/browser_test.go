@@ -9,8 +9,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestHandler(t *testing.T) {
+}
+
 func TestDirList_NotExist(t *testing.T) {
-	filenames, err := listMarkdownAndDirs("/doesnotexist")
+	filenames, err := listMarkdownAndDirs(os.DirFS("/doesnotexist"))
 	if err == nil {
 		t.Error("expected an error but got none")
 	}
@@ -25,7 +28,7 @@ func TestDirList(t *testing.T) {
 	newDir(t, dir, "subdir")
 	newFile(t, dir, "ignoreme.txt", "")
 
-	filenames, err := listMarkdownAndDirs(dir)
+	filenames, err := listMarkdownAndDirs(os.DirFS(dir))
 	noErr(t, err)
 
 	expected := []string{
