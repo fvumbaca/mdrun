@@ -52,6 +52,18 @@ func TestBasicBuildHTML(t *testing.T) {
 	}
 }
 
+func TestParseCodeBloc_None(t *testing.T) {
+	doc, err := Parse([]byte("no blocks in here"))
+	noErr(t, err)
+	diff(t, 0, len(doc.blocks))
+}
+
+func TestParseCodeBloc_Some(t *testing.T) {
+	doc, err := Parse(loadFixture(t, "two_code_blocks.md"))
+	noErr(t, err)
+	diff(t, 2, len(doc.blocks))
+}
+
 func loadFixture(t *testing.T, name string) []byte {
 	content, err := ioutil.ReadFile("fixtures/" + name)
 	if err != nil {

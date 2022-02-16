@@ -1,7 +1,9 @@
 package rundoc
 
 import (
+	"crypto/md5"
 	_ "embed"
+	"encoding/base64"
 	"fmt"
 	"io"
 
@@ -10,6 +12,17 @@ import (
 
 type Rundoc struct {
 	docRoot *blackfriday.Node
+	blocks  map[string]codeBlock
+}
+
+type codeBlock struct {
+	Lang   string
+	Script []byte
+}
+
+func (b codeBlock) GenID() string {
+	return base64.StdEncoding.EncodeToString(md5.New().Sum([]byte(b.Lang +
+		string(b.Script))))
 }
 
 func Parse(input []byte) (*Rundoc, error) {
@@ -19,12 +32,25 @@ func Parse(input []byte) (*Rundoc, error) {
 	}
 	markdown := blackfriday.New(optList...)
 	doc.docRoot = markdown.Parse(input)
+
+	doc.blocks = make(map[string]codeBlock)
+	doc.docRoot.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+		if node.Type == blackfriday.CodeBlock {
+			block := codeBlock{
+				Lang:   string(node.CodeBlockData.Info),
+				Script: node.Literal,
+			}
+			doc.blocks[block.GenID()] = block
+		}
+		return blackfriday.GoToNext
+	})
+
 	return &doc, nil
 }
 
 func (d *Rundoc) WriteHTML(w io.Writer) {
 	r := customRenderer{
-		jsAppURL: "/_assets/js/app.js",
+		jsAppURL: "/-/static/js/app.js",
 		HTMLRenderer: blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
 			Flags: blackfriday.CompletePage,
 		}),
@@ -51,7 +77,11 @@ func (r *customRenderer) RenderNode(w io.Writer, node *blackfriday.Node,
 	switch node.Type {
 	case blackfriday.CodeBlock:
 		r := r.HTMLRenderer.RenderNode(w, node, entering)
-		fmt.Fprintf(w, `<button onclick="alert('testing123')">Run</button>`)
+		block := codeBlock{
+			Lang:   string(node.CodeBlockData.Info),
+			Script: node.Literal,
+		}
+		fmt.Fprintf(w, `<button onclick="execBlock('%s')">Run</button>`, block.GenID())
 		return r
 	default:
 		return r.HTMLRenderer.RenderNode(w, node, entering)

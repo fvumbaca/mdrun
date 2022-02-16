@@ -38,14 +38,29 @@ import (
 	"strings"
 
 	"github.com/fvumbaca/mdrun/browser"
+	"github.com/fvumbaca/mdrun/rundoc"
 	_ "github.com/fvumbaca/mdrun/rundoc"
+	"github.com/fvumbaca/mdrun/static"
 	"github.com/gorilla/websocket"
 	"github.com/russross/blackfriday/v2"
 )
 
 func main() {
+
+	rootFS := os.DirFS("./")
+
+	docHandler := rundoc.Handler{
+		RootFS: rootFS,
+	}
+
+	browserHandler := browser.Handler{
+		RootFS:      rootFS,
+		FileHandler: &docHandler,
+	}
+
 	fmt.Println("Startung up server on :3000")
-	http.Handle("/", &browser.Handler{RootFS: os.DirFS("./")})
+	http.Handle("/-/static/", static.Static("/-/static"))
+	http.Handle("/", &browserHandler)
 	http.ListenAndServe(":3000", nil)
 }
 

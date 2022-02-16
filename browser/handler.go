@@ -2,14 +2,11 @@ package browser
 
 import (
 	"embed"
-	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
 	"path/filepath"
 	"strings"
-
-	"github.com/fvumbaca/mdrun/rundoc"
 )
 
 //go:embed *.tmpl.html
@@ -26,7 +23,8 @@ func init() {
 }
 
 type Handler struct {
-	RootFS fs.FS
+	RootFS      fs.FS
+	FileHandler http.Handler
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -49,7 +47,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if !fi.IsDir() {
-		h.renderFile(w, req, filename)
+		h.FileHandler.ServeHTTP(w, req)
 		return
 	}
 	h.renderDirectory(w, req, filename)
@@ -73,25 +71,6 @@ func (h *Handler) renderDirectory(w http.ResponseWriter, req *http.Request, dirn
 		Path:  filepath.Clean(dirname),
 		Items: filenames,
 	})
-}
-
-func (h *Handler) renderFile(w http.ResponseWriter, req *http.Request, filename string) {
-	// TODO
-	fmt.Println("rendering file...")
-	contents, err := fs.ReadFile(h.RootFS, filename)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	doc, err := rundoc.Parse(contents)
-	if err != nil {
-		// TODO render better errors with errors in MD files
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	doc.WriteHTML(w)
 }
 
 type infoDirectory struct {

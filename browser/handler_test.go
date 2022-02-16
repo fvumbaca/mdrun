@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/fvumbaca/mdrun/rundoc"
 )
 
 func TestHandler(t *testing.T) {
@@ -15,7 +17,13 @@ func TestHandler(t *testing.T) {
 	newDir(t, dir, "subdir")
 	newFile(t, dir, "subdir/subfile.md", "")
 
-	h := &Handler{os.DirFS(dir)}
+	// FIXME: There should be a better way to test this then to import rundoc's
+	// handler. Did this bc it works for now....
+	fh := rundoc.Handler{RootFS: os.DirFS(dir)}
+	h := &Handler{
+		RootFS:      os.DirFS(dir),
+		FileHandler: &fh,
+	}
 	hitHTMLEndpointStatusCode(t, h, "/does_not_exist.md", http.StatusNotFound)
 	hitHTMLEndpointStatusCode(t, h, "/example.md", http.StatusOK)
 	hitHTMLEndpointStatusCode(t, h, "/subdir", http.StatusOK)

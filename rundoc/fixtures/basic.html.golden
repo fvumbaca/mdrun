@@ -7,13 +7,13 @@
 </head>
 <body>
 
-<script src='/_assets/js/app.js'></script>
+<script src='/-/static/js/app.js'></script>
 <h1>Header 1</h1>
 
 <p>Some content</p>
 
 <pre><code class="language-sh">echo &quot;Hello world&quot;
 </code></pre>
-<button onclick="alert('testing123')">Run</button>
+<button onclick="execBlock('c2hlY2hvICJIZWxsbyB3b3JsZCIK1B2M2Y8AsgTpgAmY7PhCfg==')">Run</button>
 </body>
 </html>
