@@ -1,6 +1,8 @@
 package rundoc
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +19,7 @@ func TestHandler_FileNotFound(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/example.md", nil)
 	rec := httptest.NewRecorder()
-	h := Handler{os.DirFS(dir)}
+	h := NewHandler(os.DirFS(dir))
 	h.ServeHTTP(rec, req)
 	r := rec.Result()
 
@@ -35,7 +37,7 @@ func TestHandler_ExistingFile(t *testing.T) {
 
 	newFile(t, dir, "example.md", "example md file")
 
-	h := Handler{os.DirFS(dir)}
+	h := NewHandler(os.DirFS(dir))
 	h.ServeHTTP(rec, req)
 	r := rec.Result()
 
@@ -53,7 +55,7 @@ func TestHandler_ExecBlockDoesNotExist(t *testing.T) {
 
 	newFile(t, dir, "example.md", "example md file")
 
-	h := Handler{os.DirFS(dir)}
+	h := NewHandler(os.DirFS(dir))
 	h.ServeHTTP(rec, req)
 	r := rec.Result()
 
@@ -62,21 +64,68 @@ func TestHandler_ExecBlockDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestHandler_ExecBlock(t *testing.T) {
+func TestHandlerExec_TextBlock(t *testing.T) {
 	dir, cleanup := tmpDir(t)
 	defer cleanup()
+	newFile(t, dir, "example.md", "example md file\n```text\nExample\n```")
+	h := NewHandler(os.DirFS(dir))
+	testBlockExecEndpoint(t, h, "example.md", "text", "Example\n", "Example\n")
+}
 
-	newFile(t, dir, "example.md", "example md file\n```sh\nExample\n```")
-
-	bid := codeBlock{
+func TestHandlerExec_ShellEchoBlock(t *testing.T) {
+	dir, cleanup := tmpDir(t)
+	defer cleanup()
+	newDocBuilder().AddCodeBlock(codeBlock{
 		Lang:   "sh",
-		Script: []byte("Example\n"),
-	}.GenID()
+		Script: []byte("echo Hello world"),
+	}).WriteFile(t, dir, "t.md")
 
-	req := httptest.NewRequest("POST", "/example.md?bid="+bid, nil)
+	h := NewHandler(os.DirFS(dir))
+	testBlockExecEndpoint(t, h, "t.md", "sh", "echo \"hello, world!\"\n", "Hello world\n")
+}
+
+func TestHandlerExec_ShellNotInCMDFuncMap(t *testing.T) {
+	dir, cleanup := tmpDir(t)
+	defer cleanup()
+	newDocBuilder().AddCodeBlock(codeBlock{
+		Lang:   "sh",
+		Script: []byte("echo Hello world"),
+	}).WriteFile(t, dir, "t.md")
+
+	h := NewHandler(os.DirFS(dir))
+	h.cmdMap = make(LangExecCMDMap)
+	testBlockExecEndpoint(t, h, "t.md", "sh", "echo \"hello, world!\"\n", "Hello world\n")
+}
+
+// helpers ---------
+
+type docBuilder struct {
+	bytes.Buffer
+	blocks []codeBlock
+}
+
+func newDocBuilder() *docBuilder {
+	return &docBuilder{}
+}
+
+func (b *docBuilder) AddCodeBlock(block codeBlock) *docBuilder {
+	b.blocks = append(b.blocks, block)
+	fmt.Fprintf(b, "```%s\n%s\n```\n", block.Lang, string(block.Script))
+	return b
+}
+
+func (b *docBuilder) WriteFile(t *testing.T, dir, filename string) {
+	newFile(t, dir, filename, b.String())
+}
+
+func testBlockExecEndpoint(t *testing.T, h http.Handler, filename, lang, script, expected string) {
+	bid := codeBlock{
+		Lang:   lang,
+		Script: []byte(script),
+	}.GenID()
+	req := httptest.NewRequest("POST", "/"+filename+"?bid="+bid, nil)
 	rec := httptest.NewRecorder()
 
-	h := Handler{os.DirFS(dir)}
 	h.ServeHTTP(rec, req)
 	r := rec.Result()
 
@@ -86,11 +135,8 @@ func TestHandler_ExecBlock(t *testing.T) {
 
 	content, err := ioutil.ReadAll(r.Body)
 	noErr(t, err)
-
-	diff(t, string(content), "Example\n")
+	diff(t, expected, string(content))
 }
-
-// helpers ---------
 
 func newFile(t *testing.T, dir, name string, body string) {
 	var err error

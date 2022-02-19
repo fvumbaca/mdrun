@@ -14,6 +14,6 @@
 
 <pre><code class="language-sh">echo &quot;Hello world&quot;
 </code></pre>
-<button onclick="execBlock('c2hlY2hvICJIZWxsbyB3b3JsZCIK1B2M2Y8AsgTpgAmY7PhCfg==')">Run</button>
+<div id="c2hlY2hv"><button onclick="execBlock('c2hlY2hv')">Run</button></div>
 </body>
 </html>

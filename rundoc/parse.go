@@ -1,7 +1,7 @@
 package rundoc
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	_ "embed"
 	"encoding/base64"
 	"fmt"
@@ -21,8 +21,13 @@ type codeBlock struct {
 }
 
 func (b codeBlock) GenID() string {
-	return base64.StdEncoding.EncodeToString(md5.New().Sum([]byte(b.Lang +
+	// TODO: Review this to minimize collisions
+	id := base64.RawStdEncoding.EncodeToString(sha256.New().Sum([]byte(b.Lang +
 		string(b.Script))))
+	if len(id) < 8 {
+		return id
+	}
+	return id[:8]
 }
 
 func Parse(input []byte) (*Rundoc, error) {
@@ -65,6 +70,7 @@ func (d *Rundoc) WriteHTML(w io.Writer) {
 type customRenderer struct {
 	jsAppURL string
 	*blackfriday.HTMLRenderer
+	walkCounter int
 }
 
 func (r *customRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
@@ -74,15 +80,20 @@ func (r *customRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
 
 func (r *customRenderer) RenderNode(w io.Writer, node *blackfriday.Node,
 	entering bool) blackfriday.WalkStatus {
+	r.walkCounter++
 	switch node.Type {
 	case blackfriday.CodeBlock:
-		r := r.HTMLRenderer.RenderNode(w, node, entering)
+		res := r.HTMLRenderer.RenderNode(w, node, entering)
 		block := codeBlock{
 			Lang:   string(node.CodeBlockData.Info),
 			Script: node.Literal,
 		}
-		fmt.Fprintf(w, `<button onclick="execBlock('%s')">Run</button>`, block.GenID())
-		return r
+		bid := block.GenID()
+
+		fmt.Fprintf(w, "<div id=\"%s\"><button onclick=\"execBlock('%s')\">Run</button></div>", bid, bid)
+
+		// fmt.Fprintf(w, `<div id="block-%d"><button onclick="execBlock('block-%d', '%s')">Run</button></div>`, r.walkCounter, r.walkCounter, block.GenID())
+		return res
 	default:
 		return r.HTMLRenderer.RenderNode(w, node, entering)
 	}

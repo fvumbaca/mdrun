@@ -49,16 +49,14 @@ func main() {
 
 	rootFS := os.DirFS("./")
 
-	docHandler := rundoc.Handler{
-		RootFS: rootFS,
-	}
+	docHandler := rundoc.NewHandler(rootFS)
 
 	browserHandler := browser.Handler{
 		RootFS:      rootFS,
-		FileHandler: &docHandler,
+		FileHandler: docHandler,
 	}
 
-	fmt.Println("Startung up server on :3000")
+	fmt.Println("Starting up server on :3000")
 	http.Handle("/-/static/", static.Static("/-/static"))
 	http.Handle("/", &browserHandler)
 	http.ListenAndServe(":3000", nil)
