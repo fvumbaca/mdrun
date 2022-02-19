@@ -1,30 +1,6 @@
 package main
 
-/*
-This is going to be sick!
-
-Features:
-
-- Support metadata at the top of the file
-- Support required cli-tools to throw errors early if it can even run on the
-system
-- Support inline requests
-- Support out-of-the-box containerization
-- Interactive mode will print out runbook and prompt before each exec
-- Script mode that will execute mardown as a script
-- Infer language dependencies from code blocks
-
-Example usage:
-
-	$ mdrun my-runbook.md --set SOME_VAR=hello
-
-	# -E pulls from the environment
-	$ mdrun -E my-runbook.md
-*/
-
 import (
-	// Keeping here for now to include tests while developing
-
 	"fmt"
 	"net/http"
 	"os"

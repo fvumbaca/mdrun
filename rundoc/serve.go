@@ -75,12 +75,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if ok {
 			c, handle := h.cmdMap[b.Lang]
 			if !handle {
-				// FIXME: Handle the error by responding with a 400
-				res, _ := buildStdinCMDFunc(b.Lang)(req.Context(), b.Script)
+				res, err := buildStdinCMDFunc(b.Lang)(req.Context(), b.Script)
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+				}
 				w.Write(res)
 			} else {
-				// FIXME: Handle the error by responding with a 400
-				res, _ := c(req.Context(), b.Script)
+				res, err := c(req.Context(), b.Script)
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+				}
 				w.Write(res)
 			}
 		} else {
