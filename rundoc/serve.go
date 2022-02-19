@@ -91,6 +91,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 		}
 	} else {
-		doc.WriteHTML(w)
+		// renderer := NewHTMLRenderer()
+		RenderDoc(w, doc)
+
+		// doc.WriteHTML(w)
 	}
 }

@@ -43,10 +43,20 @@ func NewHTMLRenderer() *HTMLRenderer {
 			JS:       []string{"/-/static/js/app.js"},
 			CSS: []string{
 				"/-/static/css/normalize.js",
+				// "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css",
 				"/-/static/css/style.js",
 			},
 		},
 	}
+}
+
+func RenderDoc(w io.Writer, doc *Rundoc) {
+	r := NewHTMLRenderer()
+	r.RenderHeader(w, doc.docRoot)
+	doc.docRoot.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+		return r.RenderNode(w, node, entering)
+	})
+	r.RenderFooter(w, doc.docRoot)
 }
 
 func (r *HTMLRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
@@ -59,6 +69,15 @@ func (r *HTMLRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {
 
 func (r *HTMLRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 	switch node.Type {
+	case blackfriday.CodeBlock:
+		res := r.baseRenderer.RenderNode(w, node, entering)
+		block := codeBlock{
+			Lang:   string(node.CodeBlockData.Info),
+			Script: node.Literal,
+		}
+		bid := block.GenID()
+		io.WriteString(w, "<div id=\""+bid+"\"><button onclick=\"execBlock('"+bid+"')\">Run</button></div>\n")
+		return res
 	default:
 		return r.baseRenderer.RenderNode(w, node, entering)
 	}
