@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"testing"
+
+	blackfriday "github.com/russross/blackfriday/v2"
 )
 
 func TestRenderHTML(t *testing.T) {
@@ -14,6 +16,9 @@ func TestRenderHTML(t *testing.T) {
 	doc, err := Parse(loadFixture(t, "basic.md"))
 	noErr(t, err)
 	r.RenderHeader(&buff, doc.docRoot)
+	doc.docRoot.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+		return r.RenderNode(&buff, node, entering)
+	})
 	r.RenderFooter(&buff, doc.docRoot)
 
 	goldenFilename := filepath.Join("fixtures", t.Name()+".golden.html")

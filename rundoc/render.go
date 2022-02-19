@@ -21,8 +21,9 @@ func init() {
 }
 
 type HTMLRenderer struct {
-	templates *template.Template
-	info      renderInfo
+	templates    *template.Template
+	baseRenderer *blackfriday.HTMLRenderer
+	info         renderInfo
 }
 
 type renderInfo struct {
@@ -34,7 +35,8 @@ type renderInfo struct {
 
 func NewHTMLRenderer() *HTMLRenderer {
 	return &HTMLRenderer{
-		templates: defaultTemplates,
+		baseRenderer: blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{}),
+		templates:    defaultTemplates,
 		info: renderInfo{
 			Title:    "mdrun doc",
 			Filepath: nil,
@@ -51,10 +53,13 @@ func (r *HTMLRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
 	r.templates.ExecuteTemplate(w, "header.html", r.info)
 }
 
-func (r *HTMLRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
-	return blackfriday.GoToNext
-}
-
 func (r *HTMLRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {
 	r.templates.ExecuteTemplate(w, "footer.html", r.info)
+}
+
+func (r *HTMLRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+	switch node.Type {
+	default:
+		return r.baseRenderer.RenderNode(w, node, entering)
+	}
 }
