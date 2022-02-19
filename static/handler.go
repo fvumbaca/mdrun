@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-//go:embed js/*
+//go:embed js/* css/*
 var staticFS embed.FS
 
 func Static(prefixPath string) http.Handler {

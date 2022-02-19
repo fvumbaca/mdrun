@@ -20,16 +20,6 @@ type codeBlock struct {
 	Script []byte
 }
 
-func (b codeBlock) GenID() string {
-	// TODO: Review this to minimize collisions
-	id := base64.RawStdEncoding.EncodeToString(sha256.New().Sum([]byte(b.Lang +
-		string(b.Script))))
-	if len(id) < 8 {
-		return id
-	}
-	return id[:8]
-}
-
 func Parse(input []byte) (*Rundoc, error) {
 	var doc Rundoc
 	optList := []blackfriday.Option{
@@ -53,10 +43,22 @@ func Parse(input []byte) (*Rundoc, error) {
 	return &doc, nil
 }
 
+func (b codeBlock) GenID() string {
+	// TODO: Review this to minimize collisions
+	id := base64.RawStdEncoding.EncodeToString(sha256.New().Sum([]byte(b.Lang +
+		string(b.Script))))
+	if len(id) < 8 {
+		return id
+	}
+	return id[:8]
+}
+
 func (d *Rundoc) WriteHTML(w io.Writer) {
 	r := customRenderer{
 		jsAppURL: "/-/static/js/app.js",
+		cssURLs:  []string{"/-/static/css/normalize.css"},
 		HTMLRenderer: blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
+			CSS:   "/-/static/css/normalize.css",
 			Flags: blackfriday.CompletePage,
 		}),
 	}
@@ -69,12 +71,24 @@ func (d *Rundoc) WriteHTML(w io.Writer) {
 
 type customRenderer struct {
 	jsAppURL string
+	cssURLs  []string
 	*blackfriday.HTMLRenderer
 	walkCounter int
 }
 
 func (r *customRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
-	r.HTMLRenderer.RenderHeader(w, ast)
+	// r.HTMLRenderer.RenderHeader(w, ast)
+	fmt.Fprintln(w, "<!DOCTYPE html>")
+	fmt.Fprintln(w, "<html>")
+	fmt.Fprintln(w, "<head>")
+	fmt.Fprintln(w, "  <title></title>")
+	fmt.Fprintln(w, "  <meta name=\"GENERATOR\" content=\"Mdrun powered by Blackfriday 2\">")
+	fmt.Fprintln(w, "  <meta charset=\"utf-8\">")
+	for _, css := range r.cssURLs {
+		fmt.Fprintf(w, "<link rel=\"stylesheet\" href=\"%s\">\n", css)
+	}
+	fmt.Fprintln(w, "</head>")
+	fmt.Fprintln(w, "<body>")
 	fmt.Fprintf(w, "<script src='%s'></script>\n", r.jsAppURL)
 }
 

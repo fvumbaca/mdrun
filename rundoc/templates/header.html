@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{ .Title }}</title>
+    <meta name="description" content="Our first page">
+    <meta name="keywords" content="html tutorial template">
+    <meta name="GENERATOR" content="Mdrun powered by Blackfriday 2">
+    {{- range .CSS }}
+    <link rel="stylesheet" href="{{ . }}">
+    {{ end -}}
+  </head>
+  <body>
+    Content goes here.

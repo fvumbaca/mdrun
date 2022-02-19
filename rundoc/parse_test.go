@@ -15,7 +15,7 @@ import (
 var update = flag.Bool("update", false, "Update golden file for html building tests")
 
 var tableRenderTests = [][]string{
-	{"basic.md", "basic.html.golden"},
+	{"basic.md", "basic.golden.html"},
 }
 
 func TestMain(m *testing.M) {
@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestBasicBuildHTML(t *testing.T) {
+func TestBasicBuildBodyHTML(t *testing.T) {
 	for i, caseFiles := range tableRenderTests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			input := loadFixture(t, caseFiles[0])
@@ -38,7 +38,7 @@ func TestBasicBuildHTML(t *testing.T) {
 
 			golden := filepath.Join("fixtures", caseFiles[1])
 			if *update {
-				ioutil.WriteFile(golden, buff.Bytes(), 0655)
+				ioutil.WriteFile(golden, buff.Bytes(), 0664)
 			}
 
 			expected, err := ioutil.ReadFile(golden)
@@ -62,13 +62,4 @@ func TestParseCodeBloc_Some(t *testing.T) {
 	doc, err := Parse(loadFixture(t, "two_code_blocks.md"))
 	noErr(t, err)
 	diff(t, 2, len(doc.blocks))
-}
-
-func loadFixture(t *testing.T, name string) []byte {
-	content, err := ioutil.ReadFile("fixtures/" + name)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-	return content
 }
