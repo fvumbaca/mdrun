@@ -2,10 +2,13 @@ package rundoc
 
 import (
 	"bytes"
+	"flag"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
 )
+
+var update = flag.Bool("update", false, "Update golden file for html building tests")
 
 func TestRenderHTML(t *testing.T) {
 	var buff bytes.Buffer

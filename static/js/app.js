@@ -5,11 +5,14 @@ function execBlock(blockId) {
     fetch(window.location.pathname+"?"+params.toString(), {
         method: "POST",
     }).then((data) => {
-        return data.text()
+        return Promise.all([data.status, data.text()])
     }).then((v) => {
+        let outputClass = "";
+        if (v[0] != 200) {
+            outputClass = "class=\"output-error\"";
+        }
         document.getElementById(blockId).innerHTML =
-            `<div id="${blockId}"><textarea readonly="true">${v}</textarea><br /><button onclick="execBlock('${blockId}')">Rerun</button><button onclick="clearBlock('${blockId}')">Clear</button></div>`
-
+            `<div id="${blockId}"><textarea ${outputClass} readonly="true">${v[1]}</textarea><br /><button onclick="execBlock('${blockId}')">Rerun</button><button onclick="clearBlock('${blockId}')">Clear</button></div>`
     })
 }
 

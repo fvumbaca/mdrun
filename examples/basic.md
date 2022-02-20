@@ -2,7 +2,7 @@
 
 This is a basic example document.
 
-```sh
+```bash
 echo "hello, world!"
 ```
 
@@ -16,4 +16,12 @@ for (let i = 0; i < 10; i++) {
 Here is an example doing actual work:
 ```bash
 kubectl get ns
+```
+
+You should also take a look at [basic2](basic2.md).
+
+This is an example of what an outout with an error looks like:
+```sh
+echo "This is an error"
+exit 1
 ```

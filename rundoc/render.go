@@ -40,11 +40,14 @@ func NewHTMLRenderer() *HTMLRenderer {
 		info: renderInfo{
 			Title:    "mdrun doc",
 			Filepath: nil,
-			JS:       []string{"/-/static/js/app.js"},
+			JS: []string{
+				"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js",
+				"/-/static/js/app.js",
+			},
 			CSS: []string{
-				"/-/static/css/normalize.js",
-				// "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css",
-				"/-/static/css/style.js",
+				"/-/static/css/normalize.css",
+				"/-/static/css/style.css",
+				"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css",
 			},
 		},
 	}
