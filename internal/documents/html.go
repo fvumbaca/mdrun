@@ -61,7 +61,7 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 			Script: string(node.Literal),
 		}
 		bid := block.GenID()
-		io.WriteString(w, "<div id=\""+bid+"\"><button onclick=\"execBlock('"+bid+"')\">Run</button></div>\n")
+		io.WriteString(w, "<div id=\""+bid+"\"><button onclick=\"execBlock('"+bid+"')\">Run</button></div>")
 	case bf.BlockQuote:
 		if entering {
 			io.WriteString(w, "<div class=\"well\">")
