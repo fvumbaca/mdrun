@@ -25,3 +25,5 @@ This is an example of what an outout with an error looks like:
 echo "This is an error"
 exit 1
 ```
+
+Oh and it does not work for `inline code blocks`

@@ -43,3 +43,5 @@ system
 - CLI mode will print out the runbook to stdout and prompt before each exec
 - Script mode that will execute markdown as a script
 - Infer language dependencies from code blocks
+- Refactor API into websockets to preform better during long-running code block
+  executions.
