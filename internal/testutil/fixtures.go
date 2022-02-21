@@ -11,6 +11,7 @@ import (
 const FixtureDIR = "fixtures"
 
 func FixtureReader(t *testing.T, fixtureName string) io.ReadCloser {
+	t.Helper()
 	f, err := os.Open(filepath.Join(FixtureDIR, fixtureName))
 	if err != nil {
 		t.Error(err)
@@ -19,6 +20,7 @@ func FixtureReader(t *testing.T, fixtureName string) io.ReadCloser {
 }
 
 func FixtureBytes(t *testing.T, fixtureName string) []byte {
+	t.Helper()
 	b, err := ioutil.ReadFile(filepath.Join(FixtureDIR, fixtureName))
 	if err != nil {
 		t.Error(err)

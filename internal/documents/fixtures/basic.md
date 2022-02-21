@@ -8,6 +8,8 @@ Here is a code block as an example:
 echo "Hello World"
 ```
 
+---
+
 ## This is a Subheading
 
 Someone once said:

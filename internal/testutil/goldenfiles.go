@@ -19,6 +19,7 @@ func init() {
 // When required, all golden files can be updated by setting `GOLDEN_UPDATE=1`
 // before running tests using golden files.
 func GoldenFileDiff(t *testing.T, filename string, result []byte) {
+	t.Helper()
 	if updateGoldenFiles {
 		err := ioutil.WriteFile(filepath.Join(FixtureDIR, filename), result, 0664)
 		NoErr(t, err)

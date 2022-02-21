@@ -167,6 +167,13 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 		} else {
 			io.WriteString(w, "</tbody>")
 		}
+	case bf.HorizontalRule:
+		io.WriteString(w, "</hr>")
+	case bf.Hardbreak:
+		io.WriteString(w, "</br>")
+	case bf.Softbreak:
+		io.WriteString(w, "\n")
+
 	default:
 		panic(node.Type.String())
 	}
