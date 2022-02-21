@@ -43,8 +43,6 @@ type renderer struct {
 
 // TODO: clean up this code. Its really ugly rn....
 func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.WalkStatus {
-	var ident = 0
-	io.WriteString(w, strings.Repeat("  ", ident))
 	switch node.Type {
 	case bf.HTMLBlock:
 		w.Write(node.Literal)
@@ -169,14 +167,8 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 		} else {
 			io.WriteString(w, "</tbody>")
 		}
-
 	default:
 		panic(node.Type.String())
-	}
-	if entering {
-		ident++
-	} else {
-		ident--
 	}
 	io.WriteString(w, "\n")
 	return bf.GoToNext
