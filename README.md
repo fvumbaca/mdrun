@@ -36,12 +36,14 @@ the current directory.
 ## Still TODO
 
 - Support basic cli flags like `--port`
+- Switch  to use https://prismjs.com/ for codeblock styling
 - Support metadata at the top of the file in front matter
 - Support required cli-tools to throw errors early if it can even run on the
-system
+  system
 - Support out-of-the-box containerization??
 - CLI mode will print out the runbook to stdout and prompt before each exec
 - Script mode that will execute markdown as a script
 - Infer language dependencies from code blocks
 - Refactor API into websockets to preform better during long-running code block
   executions.
+- Full text search

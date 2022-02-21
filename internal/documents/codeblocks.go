@@ -7,7 +7,7 @@ import (
 
 type CodeBlock struct {
 	Lang   string
-	Script []byte
+	Script string
 }
 
 func (cb CodeBlock) GenID() string {

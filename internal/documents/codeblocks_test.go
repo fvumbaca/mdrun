@@ -9,7 +9,7 @@ import (
 func TestCodeBlockGenID(t *testing.T) {
 	block := CodeBlock{
 		Lang:   "example",
-		Script: []byte("example"),
+		Script: "example",
 	}
 	testutil.Diff(t, block.GenID(), "ZXhhbXBs")
 }

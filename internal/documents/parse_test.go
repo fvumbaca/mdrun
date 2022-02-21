@@ -12,4 +12,13 @@ func TestParse_Basic(t *testing.T) {
 	var buff bytes.Buffer
 	testPrintDocument(&buff, doc)
 	GoldenFileDiff(t, "basic_parse_result.golden", buff.Bytes())
+
+	expectedBlock := CodeBlock{
+		Lang:   "sh",
+		Script: "echo \"Hello World\"\n",
+	}
+
+	resultBlock, ok := doc.GetCodeBlock(expectedBlock.GenID())
+	Diff(t, true, ok)
+	Diff(t, expectedBlock, resultBlock)
 }

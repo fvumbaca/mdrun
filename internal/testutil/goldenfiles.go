@@ -25,5 +25,5 @@ func GoldenFileDiff(t *testing.T, filename string, result []byte) {
 	}
 	b, err := ioutil.ReadFile(filepath.Join(FixtureDIR, filename))
 	NoErr(t, err)
-	Diff(t, b, result)
+	Diff(t, string(b), string(result))
 }
