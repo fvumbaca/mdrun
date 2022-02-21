@@ -41,6 +41,7 @@ type renderer struct {
 	isListItemText bool
 }
 
+// TODO: clean up this code. Its really ugly rn....
 func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.WalkStatus {
 	var ident = 0
 	io.WriteString(w, strings.Repeat("  ", ident))
@@ -49,7 +50,6 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 		w.Write(node.Literal)
 	case bf.Document:
 		return bf.GoToNext
-
 	case bf.Text:
 		txt := string(node.Literal)
 		if r.isListItemText {
@@ -137,6 +137,37 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 		} else {
 			io.WriteString(w, "</li>")
 			r.isListItemText = false
+		}
+
+	case bf.Table:
+		if entering {
+			io.WriteString(w, "<table>")
+		} else {
+			io.WriteString(w, "</table>")
+		}
+	case bf.TableHead:
+		if entering {
+			io.WriteString(w, "<thead>")
+		} else {
+			io.WriteString(w, "</thead>")
+		}
+	case bf.TableRow:
+		if entering {
+			io.WriteString(w, "<tr>")
+		} else {
+			io.WriteString(w, "</tr>")
+		}
+	case bf.TableCell:
+		if entering {
+			io.WriteString(w, "<td>")
+		} else {
+			io.WriteString(w, "</td>")
+		}
+	case bf.TableBody:
+		if entering {
+			io.WriteString(w, "<tbody>")
+		} else {
+			io.WriteString(w, "</tbody>")
 		}
 
 	default:

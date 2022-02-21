@@ -53,3 +53,7 @@ This site was built using [GitHub Pages](https://pages.github.com/).
 
 Let's rename \*our-new-project\* to \*our-old-project\*.
 
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
