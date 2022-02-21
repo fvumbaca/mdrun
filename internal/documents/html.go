@@ -16,27 +16,6 @@ func RenderHTML(w io.Writer, doc *Document) {
 	})
 }
 
-var tags = map[bf.NodeType][]string{
-	// bf.List:           {"", ""},
-	// bf.Item:           {"", ""},
-	// bf.HorizontalRule: {"", ""},
-	// bf.Emph:           {"", ""},
-	// bf.Strong:         {"", ""},
-	// bf.Del:            {"", ""},
-	// bf.Link:           {"", ""},
-	// bf.Image:          {"", ""},
-	// bf.HTMLBlock:      {"", ""},
-	// bf.Softbreak:      {"", ""},
-	// bf.Hardbreak:      {"", ""},
-	// bf.Code:           {"", ""},
-	// bf.HTMLSpan:       {"", ""},
-	// bf.Table:          {"", ""},
-	// bf.TableCell:      {"", ""},
-	// bf.TableHead:      {"", ""},
-	// bf.TableBody:      {"", ""},
-	// bf.TableRow:       {"", ""},
-}
-
 type renderer struct {
 	isListItemText bool
 }
@@ -77,6 +56,12 @@ func (r *renderer) renderNode(w io.Writer, node *bf.Node, entering bool) bf.Walk
 		}
 	case bf.CodeBlock:
 		fmt.Fprintf(w, "<pre><code class=\"language-%s\">%s</code></pre>", string(node.CodeBlockData.Info), node.Literal)
+		block := CodeBlock{
+			Lang:   string(node.CodeBlockData.Info),
+			Script: string(node.Literal),
+		}
+		bid := block.GenID()
+		io.WriteString(w, "<div id=\""+bid+"\"><button onclick=\"execBlock('"+bid+"')\">Run</button></div>\n")
 	case bf.BlockQuote:
 		if entering {
 			io.WriteString(w, "<div class=\"well\">")
